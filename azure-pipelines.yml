@@ -1,0 +1,38 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+
+- stage: DependencyAnalysis
+  jobs:
+  - job: analyze
+    steps:
+    - script: python3 scripts/analyze_dependencies.py
+      displayName: "Analyze dependencies"
+
+- stage: Validation
+  jobs:
+  - job: validate
+    steps:
+    - script: |
+        chmod +x scripts/validate_legacy.sh
+        ./scripts/validate_legacy.sh
+      displayName: "Validate legacy programs"
+
+- stage: Build
+  jobs:
+  - job: build
+    steps:
+    - script: |
+        tar -czf legacy_build.tar.gz export_from_legacy
+      displayName: "Create build artifact"
+
+- stage: Deploy
+  jobs:
+  - job: deploy
+    steps:
+    - script: echo "Deploying artifact..."
+      displayName: "Deployment simulation"
